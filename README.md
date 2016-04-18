@@ -8,7 +8,7 @@
 ![License](https://img.shields.io/npm/l/wtfork.svg)
 
 Subscribe to and publish events between parent and child node processes using the
-standard node event emitter api as well as call parent methods from the child process and vice versa.
+standard node event emitter api or call parent methods directly from the child process and vice versa.
 
 - [IPC via Method Calls](#ipc-via-method-calls)
 - [IPC via Event Emitter](#ipc-via-event-emitter)
@@ -85,7 +85,7 @@ process.parent.send('hello', { foo: 'bar' });
 
 # IPC via Method Calls
 This allows you to setup some methods on the parent and child processes that can be called from either
-process. 
+process.
 
 **Each method MUST return a promise.**
 
