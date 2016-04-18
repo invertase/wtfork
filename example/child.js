@@ -18,6 +18,10 @@ process.parent.setChildMethods({
     });
   },
 
+	/**
+   * Unnecessary function to quit
+   * @param code
+   */
   quit(code) {
     console.log('Child process will now exit as instructed by parent...');
     process.exit(code);
