@@ -10,8 +10,8 @@
 Subscribe to and publish events between parent and child node processes using the
 standard node event emitter api as well as call parent methods from the child process and vice versa.
 
-- [IPC via Method Calls]()
-- [IPC via Event Emitter]()
+- [IPC via Method Calls](#ipc-via-method-calls)
+- [IPC via Event Emitter](#ipc-via-event-emitter)
 - 
 See the example in `/example` for full usage.
 
