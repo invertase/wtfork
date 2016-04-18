@@ -25,6 +25,36 @@ export function getMethods(classOrObject) {
 }
 
 /**
+ * Converts an Error into an IPC emitable object
+ * @param error
+ * @returns {{message: *, type: *, stack: *}}
+ */
+export function extractError(error) {
+  return {
+    message: error.message,
+    type: error.constructor.name,
+    stack: error.stack,
+  };
+}
+
+/**
+ * Converts an transmitted object back into an Error
+ * @param obj
+ * @returns {{message: *, type: *, stack: *}}
+ */
+export function convertToError(obj) {
+  if (global[obj.type]) {
+    const error = new global[obj.type](obj.message);
+    error.stack = obj.stack;
+    return error;
+  }
+  const error = new Error(obj.message);
+  error.stack = obj.stack;
+  return error;
+}
+
+
+/**
  * Creates a stub function to allow method calls via ipc.
  * @param target
  * @param method
@@ -47,7 +77,7 @@ export function ipcMethodWrapper(target, method, emitter) {
       // subscribe to responder event
       emitter.once(`wtfork:${data.func_name}:${data.call_id}`, (result) => {
         if (result.reject) {
-          return reject(result.reject);
+          return reject(convertToError(result.reject));
         }
 
         return resolve(result.resolve);
@@ -58,6 +88,7 @@ export function ipcMethodWrapper(target, method, emitter) {
     });
   };
 }
+
 
 /* eslint no-param-reassign:0 */
 /**
@@ -113,7 +144,6 @@ export function fork(path, args, options, classOrObject) {
 
   // setup internal routing of process messages sent via wtfork
   childProcess.on('message', (msg) => {
-    // console.dir(msg);
     // only route wtfork messages that are bound to this child's id
     if (msg && msg.wtfork && msg.wtfork.child_id === childProcess.child.id) {
       childProcess.child.emit(msg.wtfork.channel, msg.wtfork.data || {});
@@ -147,7 +177,7 @@ export function fork(path, args, options, classOrObject) {
           childProcess
             .child.send(
             `wtfork:${methodData.func_name}:${methodData.call_id}`,
-            { reject: error }
+            { reject: extractError(error) }
           );
         });
     }
@@ -224,7 +254,7 @@ if (process.env.WTFORK_CHILD) {
           process
             .parent.send(
             `wtfork:${methodData.func_name}:${methodData.call_id}`,
-            { reject: error }
+            { reject: extractError(error) }
           );
         });
     }

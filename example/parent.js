@@ -41,10 +41,11 @@ myDispatcherProcess.child.on('hello', (data) => {
   // send a `helloBackAtYou` event to the child process
   myDispatcherProcess.child.send('helloBackAtYou', { bar: 'foo' });
 
-
   // lets call the parent processes hello method - it should always resolve with no error
   myDispatcherProcess.child.methods.simples('meerkat').then((result) => {
     console.log(`The child method 'simples' resolved back to the parent with: ${JSON.stringify(result)}`);
+    // now quit
+    myDispatcherProcess.child.methods.quit(0);
   }).catch((error) => {
     console.error('The child method \'simples\' errored back to the parent.');
     console.error(error);

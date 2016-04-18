@@ -6,7 +6,7 @@ import wtfork from './../lib';
  * Call this to set all the methods available to the parent process
  */
 process.parent.setChildMethods({
-	/**
+  /**
    * Just resolves with the same value, simples!
    * @param someVal
    * @returns {Promise}
@@ -16,6 +16,11 @@ process.parent.setChildMethods({
       console.log(`Im a child method called 'simples' and I just ran: ${someVal}`);
       return resolve(someVal);
     });
+  },
+
+  quit(code) {
+    console.log('Child process will now exit as instructed by parent...');
+    process.exit(code);
   },
 });
 
@@ -34,7 +39,6 @@ process.parent.methods.hello('test string').then((result) => {
   console.error('The parent method \'hello\' errored back to the child.');
   console.error(error);
 });
-
 
 // lets call the parent processes goodbye method - it should always error
 process.parent.methods.goodbye('test string', 'wtfork').then((result) => {
