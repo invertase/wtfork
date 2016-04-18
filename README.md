@@ -85,7 +85,9 @@ process.parent.send('hello', { foo: 'bar' });
 
 # IPC via Method Calls
 This allows you to setup some methods on the parent and child processes that can be called from either
-process. **Each method MUST return a promise.**
+process. 
+
+**Each method MUST return a promise.**
 
 You can pass in an ES6 class instance or an object with methods. Constructor methods are ignored.
 
