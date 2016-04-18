@@ -142,6 +142,8 @@ myDispatcherProcess.child.on('hello', (data) => {
   // lets call the parent processes hello method - it should always resolve with no error
   myDispatcherProcess.child.methods.simples('meerkat').then((result) => {
     console.log(`The child method 'simples' resolved back to the parent with: ${JSON.stringify(result)}`);
+    // now quit 
+    myDispatcherProcess.child.methods.quit(0);
   }).catch((error) => {
     console.error('The child method \'simples\' errored back to the parent.');
     console.error(error);
@@ -170,6 +172,15 @@ process.parent.setChildMethods({
       console.log(`Im a child method called 'simples' and I just ran: ${someVal}`);
       return resolve(someVal);
     });
+  },
+  
+  /**
+   * Unnecessary function to quit
+   * @param code
+   */
+  quit(code) {
+    console.log('Child process will now exit as instructed by parent...');
+    process.exit(code);
   },
 });
 
@@ -220,6 +231,8 @@ Error: Please don't leave me!
     at emitTwo (events.js:100:13)
     at ChildProcess.emit (events.js:185:7)
     at handleMessage (internal/child_process.js:718:10)
+    
+Process finished with exit code 0
 ```
 
 ### Notes:
