@@ -1,7 +1,7 @@
 {
   "name": "wtfork",
   "description": "Subscribe to and publish events between parent and child node processes using the standard node event emitter api or call parent methods from the child process and vice versa.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "lib/index.js",
   "author": "salakar",
   "repository": {
@@ -17,6 +17,8 @@
     "fork",
     "forked",
     "subscribe",
+    "ipc",
+    "call",
     "publish",
     "ipc",
     "event emitter",
