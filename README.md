@@ -61,7 +61,7 @@ myDispatcherProcess.child.on('hello', function (data) {
 
 ### Child process:
 ```javascript
-import wtfork from 'wtfork;
+import wtfork from 'wtfork';
 // you only need to require wtfork on the child, it will automatically setup
 // the `process.parent` functionality for you
 
