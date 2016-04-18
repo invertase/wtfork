@@ -1,7 +1,5 @@
 # What the Fork
 
-![Build Status](https://img.shields.io/travis/salakar/wtfork.svg)
-![Coverage](https://img.shields.io/coveralls/salakar/wtfork.svg)
 ![Downloads](https://img.shields.io/npm/dm/wtfork.svg)
 ![Downloads](https://img.shields.io/npm/dt/wtfork.svg)
 ![npm version](https://img.shields.io/npm/v/wtfork.svg)
