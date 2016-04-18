@@ -12,7 +12,7 @@ Strip away the complexity of handling interprocess communication of your forked 
 This module will allow you to subscribe/publish events between parent and child processes using the
 standard node event emitter api.
 
-Instead of doing:
+Instead of:
 ```javascript
 process.on('message', function (msg) {
   if (msg && msg.isThisTheMessageForMe) {
@@ -21,7 +21,7 @@ process.on('message', function (msg) {
 });
 ```
 
-You can simply just do in your child process:
+You can simply do the following in your child process:
 
 ```javascript
 process.parent.on('thisIsTheMessageForMe', function (data) {
