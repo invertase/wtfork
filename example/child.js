@@ -6,8 +6,14 @@ import wtfork from './../lib';
  * Call this to set all the methods available to the parent process
  */
 process.parent.setChildMethods({
+	/**
+   * Just resolves with the same value, simples!
+   * @param someVal
+   * @returns {Promise}
+   */
   simples(someVal) {
     return new Promise((resolve) => {
+      console.log(`Im a child method called 'simples' and I just ran: ${someVal}`);
       return resolve(someVal);
     });
   },
@@ -25,7 +31,7 @@ process.parent.send('hello', { foo: 'bar' });
 process.parent.methods.hello('test string').then((result) => {
   console.log(`The parent method 'hello' resolved back to the child with: ${JSON.stringify(result)}`);
 }).catch((error) => {
-  console.error('The parent method \'hello\' error back to the client.');
+  console.error('The parent method \'hello\' errored back to the child.');
   console.error(error);
 });
 
@@ -34,6 +40,6 @@ process.parent.methods.hello('test string').then((result) => {
 process.parent.methods.goodbye('test string', 'wtfork').then((result) => {
   console.log(`The parent method 'goodbye' resolved back to the child with: ${result}`);
 }).catch((error) => {
-  console.error('The parent method \'goodbye\' errored back to the client:');
+  console.error('The parent method \'goodbye\' errored back to the child:');
   console.error(error);
 });
