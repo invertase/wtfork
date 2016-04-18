@@ -1,7 +1,7 @@
 {
   "name": "wtfork",
-  "description": "Strip away the complexity of handling interprocess communication of your forked child processes - allows event namespacing between parent and child processes.",
-  "version": "0.1.2",
+  "description": "Subscribe to and publish events between parent and child node processes using the standard node event emitter api.",
+  "version": "0.1.3",
   "main": "lib/index.js",
   "author": "salakar",
   "repository": {
@@ -13,6 +13,8 @@
     "child process",
     "fork",
     "forked",
+    "subscribe",
+    "publish",
     "ipc",
     "event emitter",
     "message",
