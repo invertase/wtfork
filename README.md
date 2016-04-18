@@ -214,7 +214,7 @@ The parent method 'goodbye' errored back to the child:
 
 ### Notes:
 - Each method call is given a unique id when called to allow multiple calls of the same methods simultaneously without event naming conflicts, this uses the [`cuid`](https://www.npmjs.com/package/cuid) npm module to produce colission resistant ids.
-- Each child process is also given it's own unique id using [`cuid`](https://www.npmjs.com/package/cuid). Internally this isn't used that much however in terms of tracking which child 'something' came from without knowing a PID then this is useful - if you would like to access the id on the child it can be found at `process.parent.child_id` and on the parent it can be found at `yourForkedProcess.child.id`
+- Each child process is also given it's own unique id using [`cuid`](https://www.npmjs.com/package/cuid). Internally this isn't used that much except for event source verification, however, in terms of tracking child processes without knowing a PID then this is useful - the id can be found at `process.parent.child_id` on the child and on the parent it can be found at `yourForkedProcess.child.id`
 
 ## License
 
