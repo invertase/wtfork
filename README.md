@@ -12,7 +12,7 @@ standard node event emitter api as well as call parent methods from the child pr
 
 - [IPC via Method Calls](#ipc-via-method-calls)
 - [IPC via Event Emitter](#ipc-via-event-emitter)
-- 
+
 See the example in `/example` for full usage.
 
 # Getting Started
