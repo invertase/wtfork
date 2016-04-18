@@ -20,7 +20,6 @@ export function getMethods(classOrObject) {
       methods.push(name);
     }
   }
-
   return methods;
 }
 
@@ -39,20 +38,15 @@ export function extractError(error) {
 
 /**
  * Converts an transmitted object back into an Error
+ * Only preserves global error types.
  * @param obj
- * @returns {{message: *, type: *, stack: *}}
+ * @returns Error
  */
 export function convertToError(obj) {
-  if (global[obj.type]) {
-    const error = new global[obj.type](obj.message);
-    error.stack = obj.stack;
-    return error;
-  }
-  const error = new Error(obj.message);
+  const error = global[obj.type] ? new global[obj.type](obj.message) : new Error(obj.message);
   error.stack = obj.stack;
   return error;
 }
-
 
 /**
  * Creates a stub function to allow method calls via ipc.
@@ -88,7 +82,6 @@ export function ipcMethodWrapper(target, method, emitter) {
     });
   };
 }
-
 
 /* eslint no-param-reassign:0 */
 /**
