@@ -2,17 +2,12 @@ import { EventEmitter } from 'events';
 import { fork as childProcessFork } from 'child_process';
 import cuid from 'cuid';
 
-// import { generateParentStub } from './helpers';
-
 if (process.env.WTFORK_CHILD) {
   // create a new emitter to be used as an internal messaging router from the parent process
   process.parent = new EventEmitter();
 
-  // for later usage
+  // for usage later
   process.parent.child_id = process.env.WTFORK_CHILD;
-
-  // keep a ref to the original emitter
-  process.parent._originalEmit = process.parent.emit;
 
   // override the emitter so we can intercept and forward relevant messages
   // onto the parent process via process.send
@@ -35,7 +30,7 @@ if (process.env.WTFORK_CHILD) {
     }
   });
 
-  // tell the parent we're ready
+  // tell the parent we're ready - not really used at the moment though
   process.parent.send('wtfork:child_ready', process.parent.child_id);
 }
 
@@ -79,6 +74,7 @@ export function fork(path, args, options) {
     }
   });
 
+  // again, not really used yet
   childProcess.child.on('wtfork:child_ready', () => {
     childProcess.child.ready = true;
   });
