@@ -1,7 +1,7 @@
 import { fork } from './../lib';
 
 // create a forked process as normal using standard node fork api
-const myDispatcherProcess = fork('./path/to/child.js', [], {});
+const myDispatcherProcess = fork('./example/child', [], {});
 
 // subscribe to the child's `hello` event
 myDispatcherProcess.child.on('hello', function (data) {
