@@ -209,7 +209,17 @@ Im a child method called 'simples' and I just ran: meerkat
 The parent method 'hello' resolved back to the child with: {"some":"data"}
 The child method 'simples' resolved back to the parent with: "meerkat"
 The parent method 'goodbye' errored back to the child:
-{}
+Error: Please don't leave me!
+    at parent.js:29:21
+    at new Promise (/Users/Mike/Documents/Personal/Projects/wtfork/...../es6.promise.js:193:7)
+    at Test.goodbye (parent.js:27:12)
+    at EventEmitter.<anonymous> (index.js:207:89)
+    at emitOne (events.js:90:13)
+    at EventEmitter.emit (events.js:182:7)
+    at ChildProcess.<anonymous> (index.js:186:26)
+    at emitTwo (events.js:100:13)
+    at ChildProcess.emit (events.js:185:7)
+    at handleMessage (internal/child_process.js:718:10)
 ```
 
 ### Notes:
