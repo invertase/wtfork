@@ -1,3 +1,11 @@
 {
-  "presets": ["es2015-node4"]
+  "presets": [
+    "es2015",
+    "stage-0"
+  ],
+  "plugins": [
+    "syntax-export-extensions",
+    "transform-export-extensions",
+    "add-module-exports"
+  ]
 }

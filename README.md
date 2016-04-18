@@ -7,9 +7,7 @@
 ![dev dependencies](https://img.shields.io/david/dev/salakar/wtfork.svg)
 ![License](https://img.shields.io/npm/l/wtfork.svg)
 
-Strip away the complexity of handling interprocess communication of your forked child processes.
-
-This module will allow you to subscribe/publish events between parent and child processes using the
+Subscribe to and publish events between parent and child node processes using the
 standard node event emitter api.
 
 Instead of:

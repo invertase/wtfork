@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { fork as childProcFork } from 'child_process';
+import { fork as childProcessFork } from 'child_process';
 import cuid from 'cuid';
 
 // import { generateParentStub } from './helpers';
@@ -55,7 +55,7 @@ export function fork(path, args, options) {
   Object.assign(options.env, { WTFORK_CHILD: childId });
 
   // create the child process
-  const childProcess = childProcFork(path, args, options);
+  const childProcess = childProcessFork(path, args, options);
 
   // create the helper emitter and send method
   childProcess.child = new EventEmitter();
@@ -79,7 +79,7 @@ export function fork(path, args, options) {
     }
   });
 
-  childProcess.child.on('wtfork:child_ready', (id) => {
+  childProcess.child.on('wtfork:child_ready', () => {
     childProcess.child.ready = true;
   });
 
@@ -89,4 +89,7 @@ export function fork(path, args, options) {
 export default {
   fork,
 };
+
+// TODO babel add exports plugin not working at the moment for some reason grrr
+module.exports = exports.default;
 
