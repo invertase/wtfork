@@ -1,13 +1,27 @@
 {
   "name": "wtfork",
   "description": "Strip away the complexity of handling interprocess communication of your forked child processes - allows event namespacing between parent and child processes.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "lib/index.js",
   "author": "salakar",
   "repository": {
     "type": "git",
     "url": "git://github.com/salakar/wtfork.git"
   },
+  "keywords": [
+    "child",
+    "child process",
+    "fork",
+    "forked",
+    "ipc",
+    "event emitter",
+    "message",
+    "on",
+    "emit",
+    "send",
+    "parent",
+    "parent process"
+  ],
   "license": "MIT",
   "scripts": {
     "compile": "babel src --out-dir lib",
