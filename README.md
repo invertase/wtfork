@@ -10,7 +10,10 @@
 Subscribe to and publish events between parent and child node processes using the
 standard node event emitter api as well as call parent methods from the child process and vice versa.
 
-See the example in `/example` for advanced usage.
+- [IPC via Method Calls](#ipc-via-method-calls)
+- [IPC via Event Emitter](#ipc-via-event-emitter)
+
+See the example in `/example` for full usage.
 
 # Getting Started
 
@@ -37,6 +40,7 @@ process.on('message', function (msg) {
 You can simply do the following in your child process:
 
 ```javascript
+// can also be .once()
 process.parent.on('thisIsTheMessageForMe', function (data) {
   console.log(data);
 });
@@ -52,6 +56,7 @@ import { fork } from 'wtfork';
 const myDispatcherProcess = fork('./path/to/child.js', [], {});
 
 // subscribe to the child's `hello` event
+// can also be .once()
 myDispatcherProcess.child.on('hello', function (data) {
   console.log(`I am the parent and I received data for child event 'hello': ${JSON.stringify(data)}`);
   // send a `helloBackAtYou` event to the child process
@@ -67,6 +72,7 @@ import wtfork from 'wtfork';
 // the `process.parent` functionality for you
 
 // subscribe the the `helloBackAtYou` event to be received from the parent
+// can also be .once()
 process.parent.on('helloBackAtYou', function (data) {
   console.log(`I am the child and I received data for parent event 'helloBackAtYou': ${JSON.stringify(data)}`);
 });
@@ -79,7 +85,9 @@ process.parent.send('hello', { foo: 'bar' });
 
 # IPC via Method Calls
 This allows you to setup some methods on the parent and child processes that can be called from either
-process. **Each method MUST return a promise.**
+process. 
+
+**Each method MUST return a promise.**
 
 You can pass in an ES6 class instance or an object with methods. Constructor methods are ignored.
 
@@ -192,7 +200,21 @@ process.parent.methods.goodbye('test string', 'wtfork').then((result) => {
 ```
 
 Running the parent in this example will produce the following output:
+```text
+I am the parent and I received data for child event 'hello': {"foo":"bar"}
+Im a parent method called 'hello' and I just ran: test string
+Im a parent method called 'goodbye' and I just ran: test string - wtfork
+I am the child and I received data for parent event 'helloBackAtYou': {"bar":"foo"}
+Im a child method called 'simples' and I just ran: meerkat
+The parent method 'hello' resolved back to the child with: {"some":"data"}
+The child method 'simples' resolved back to the parent with: "meerkat"
+The parent method 'goodbye' errored back to the child:
+{}
+```
 
+Notes:
+- Each method call is given a unique id when called to allow multiple calls of the same methods simultaneously without event conflicts, this uses the [`cuid`](https://www.npmjs.com/package/cuid) npm module to produce colission resistant ids.
+- Each child process is also given it's own id using the module mentioned above. Internally this isn't used that much, however if you would like to access the id on the child it can be found at `process.parent.child_id` and for the parent it can be found at `yourForkedProcess.child.id`
 
 ## License
 
