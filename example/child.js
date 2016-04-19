@@ -1,11 +1,10 @@
-import wtfork from './../lib';
-// you only need to require wtfork on the child, it will automatically setup
-// the `process.parent` functionality for you
+// just export to setup available child methods
 
-/**
- * Call this to set all the methods available to the parent process
- */
-process.parent.setChildMethods({
+// or module.exports.simples = function( ...
+// or export default function simples(...
+// or export default { ...object with methods }
+// or export default new MyChildHelperClass();
+module.exports = {
   /**
    * Just resolves with the same value, simples!
    * @param someVal
@@ -26,15 +25,14 @@ process.parent.setChildMethods({
     console.log('Child process will now exit as instructed by parent...');
     process.exit(code);
   },
-});
+};
 
-// subscribe the the `helloBackAtYou` event to be received from the parent
-process.parent.on('helloBackAtYou', function (data) {
-  console.log(`I am the child and I received data for parent event 'helloBackAtYou': ${JSON.stringify(data)}`);
+// subscribe the the `hello` event to be received from the parent
+process.parent.on('hello', function (data) {
+  console.log(`I am the child and I received data for parent event 'hello': ${JSON.stringify(data)}`);
+  // send a `helloBackAtYou` event to the parent process
+  process.parent.send('helloBackAtYou', { foo: 'bar' });
 });
-
-// send a `hello` event to the parent process
-process.parent.send('hello', { foo: 'bar' });
 
 // lets call the parent processes hello method - it should always resolve with no error
 process.parent.methods.hello('test string').then((result) => {

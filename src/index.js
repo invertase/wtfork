@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import { fork as childProcessFork } from 'child_process';
+import { resolve } from 'path';
 import cuid from 'cuid';
 
 /**
@@ -118,36 +119,51 @@ export function fork(path, args, options, classOrObject) {
   const childId = cuid();
   if (!options) options = {};
   if (!options.env) options.env = {};
+  if (!options.execArgv) options.execArgv = [];
+  if (!args) args = [];
+
+  Object.assign(options.env, {
+    WTFORK_CHILD: childId,
+    WTFORK_PATH: resolve(process.cwd(), path),
+  });
 
   if (classOrObject) {
     // set the parent methods available to the child
-    Object.assign(options.env, {
-      WTFORK_CHILD: childId,
-      WTFORK_PARENT_METHODS: _getMethods(classOrObject),
-    });
-  } else {
-    Object.assign(options.env, {
-      WTFORK_CHILD: childId,
-    });
+    options.env.WTFORK_PARENT_METHODS = _getMethods(classOrObject);
   }
 
   // create the child process
-  const childProcess = childProcessFork(path, args, options);
+  const childProcess = childProcessFork(resolve(__dirname), args, options);
 
   // create the helper emitter and send method
   childProcess.child = new EventEmitter();
 
+  // buffer any events prior to a ready state
+  childProcess.child.buffer = [];
+
   // where the child method stubs get created
   childProcess.child.methods = {};
+
+  // not really used much but I have plans \o/
+  childProcess.child.id = childId;
 
   // internal ref to the provided classOrObject
   childProcess.child._parentMethods = classOrObject || {};
 
-  // not really used much but I have plans
-  childProcess.child.id = childId;
+  // setup internal routing of process messages sent via wtfork
+  childProcess.on('message', (msg) => {
+    // only route wtfork messages that are bound to this child's id
+    if (msg && msg.wtfork && msg.wtfork.child_id === childProcess.child.id) {
+      childProcess.child.emit(msg.wtfork.channel, msg.wtfork.data || {});
+    }
+  });
 
   // send wrapper method
   childProcess.child.send = function send(channel, data) {
+    // pre ready state lets just buffer all outbound
+    if (!childProcess.child.ready) {
+      return childProcess.child.buffer.push([channel, data]);
+    }
     // forward to child process
     return childProcess.send({
       wtfork: {
@@ -158,24 +174,20 @@ export function fork(path, args, options, classOrObject) {
     });
   };
 
-  // setup internal routing of process messages sent via wtfork
-  childProcess.on('message', (msg) => {
-    // only route wtfork messages that are bound to this child's id
-    if (msg && msg.wtfork && msg.wtfork.child_id === childProcess.child.id) {
-      childProcess.child.emit(msg.wtfork.channel, msg.wtfork.data || {});
-    }
-  });
-
-  // again, not really used yet
-  childProcess.child.on('wtfork:child_ready', () => {
-    childProcess.child.ready = true;
-  });
-
   // set stub methods when the child call set methods.
   childProcess.child.on('wtfork:set_child_methods', (data) => {
     data.wtfork.methods.forEach((name) => {
       childProcess.child.methods[name] = _ipcMethodWrapper('child', name, childProcess.child);
     });
+  });
+
+
+  // again, not really used yet
+  childProcess.child.on('wtfork:child_ready', () => {
+    childProcess.child.ready = true;
+    // replay buffered events as we're now ready
+    childProcess.child.buffer.forEach(event => childProcess.child.send(...event));
+    childProcess.child.buffer = [];
   });
 
   // relay method calls
@@ -211,7 +223,7 @@ module.exports = exports.default;
 
 // Below code sets up the child process.parent functionality
 // only if the env variable is present - automatically added by the internal fork
-if (process.env.WTFORK_CHILD) {
+if (process.env.WTFORK_CHILD && !process.parent) {
   // create a new emitter to be used as an internal messaging router from the parent process
   process.parent = new EventEmitter();
 
@@ -254,9 +266,6 @@ if (process.env.WTFORK_CHILD) {
     }
   });
 
-  // tell the parent we're ready - not really used at the moment though
-  process.parent.send('wtfork:child_ready', process.parent.child_id);
-
   // relay method calls
   process.parent.on('wtfork:parent_to_child:method_call', (methodData) => {
     if (process.parent._childMethods[methodData.func_name]) {
@@ -277,6 +286,14 @@ if (process.env.WTFORK_CHILD) {
         });
     }
   });
+
+  // now load the actual child module
+  const childModule = require(process.env.WTFORK_PATH);
+  // support export default
+  _setChildMethods(childModule.default ? childModule.default : childModule);
+
+  // tell the parent we're ready - not really used at the moment though
+  process.parent.send('wtfork:child_ready', process.parent.child_id);
 }
 
 // TODO merge method relay functionality from parent and child, duplicating logic at the moment

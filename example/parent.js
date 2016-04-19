@@ -47,20 +47,20 @@ class Test {
 // but with an additional 4th param of a class or object containing methods
 const myDispatcherProcess = fork('./example/child', [], {}, new Test());
 
-// subscribe to the child's `hello` event
-myDispatcherProcess.child.on('hello', (data) => {
-  console.log(`I am the parent and I received data for child event 'hello': ${JSON.stringify(data)}`);
-  // send a `helloBackAtYou` event to the child process
-  myDispatcherProcess.child.send('helloBackAtYou', { bar: 'foo' });
+// subscribe to the child's `helloBackAtYou` event
+myDispatcherProcess.child.on('helloBackAtYou', (data) => {
+  console.log(`I am the parent and I received data for a child event 'helloBackAtYou': ${JSON.stringify(data)}`);
 
-  // lets call the parent processes hello method - it should always resolve with no error
+  // lets call the child processes hello method - it should always resolve with no error
   myDispatcherProcess.child.methods.simples('meerkat').then((result) => {
     console.log(`The child method 'simples' resolved back to the parent with: ${JSON.stringify(result)}`);
-    // now quit
-    myDispatcherProcess.child.methods.quit(0);
+    // now quit maybe?
+    myDispatcherProcess.child.methods.quit(0); // doesn't need to be a promise
   }).catch((error) => {
     console.error('The child method \'simples\' errored back to the parent.');
     console.error(error);
   });
-
 });
+
+// send a hello event to the child, the child in turn responds with a helloBackAtYou event.
+myDispatcherProcess.child.send('hello', { bar: 'foo' });
