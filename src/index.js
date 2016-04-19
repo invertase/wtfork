@@ -30,8 +30,9 @@ export function getMethods(classOrObject) {
  * Converts an Error into an IPC emitable object
  * @param error
  * @returns {{message: *, type: *, stack: *}}
+ * @private
  */
-export function extractError(error) {
+function _extractError(error) {
   return {
     message: error.message,
     type: error.constructor.name,
@@ -44,8 +45,9 @@ export function extractError(error) {
  * Only preserves global error types.
  * @param obj
  * @returns Error
+ * @private
  */
-export function convertToError(obj) {
+function _convertToError(obj) {
   const error = global[obj.type] ? new global[obj.type](obj.message) : new Error(obj.message);
   error.stack = obj.stack;
   return error;
@@ -57,9 +59,10 @@ export function convertToError(obj) {
  * @param method
  * @param emitter
  * @returns Function
+ * @private
  */
-export function ipcMethodWrapper(target, method, emitter) {
-  return function stubbyMcStubFace(...args) {
+function _ipcMethodWrapper(target, method, emitter) {
+  return function stubbyMcStubFace(...args) { // boatyMcBoatFace for pres
     // we create a new id per function call so we can track that specific methods invocation
     // to allow multiple calls of the same function
     const callId = cuid();
@@ -74,7 +77,7 @@ export function ipcMethodWrapper(target, method, emitter) {
       // subscribe to responder event
       emitter.once(`wtfork:${data.func_name}:${data.call_id}`, (result) => {
         if (result.reject) {
-          return reject(convertToError(result.reject));
+          return reject(_convertToError(result.reject));
         }
 
         return resolve(result.resolve);
@@ -84,6 +87,21 @@ export function ipcMethodWrapper(target, method, emitter) {
       emitter.send(`wtfork:${type}:method_call`, data);
     });
   };
+}
+
+/**
+ * Notifies the parent of the child process methods based on
+ * a provided class or object of methods.
+ * @param classOrObject
+ * @private
+ */
+function _setChildMethods(classOrObject) {
+  process.parent._childMethods = classOrObject;
+  process.parent.send('wtfork:set_child_methods', {
+    wtfork: {
+      methods: getMethods(classOrObject),
+    },
+  });
 }
 
 /* eslint no-param-reassign:0 */
@@ -154,7 +172,7 @@ export function fork(path, args, options, classOrObject) {
   // set stub methods when the child call set methods.
   childProcess.child.on('wtfork:set_child_methods', (data) => {
     data.wtfork.methods.forEach((name) => {
-      childProcess.child.methods[name] = ipcMethodWrapper('child', name, childProcess.child);
+      childProcess.child.methods[name] = _ipcMethodWrapper('child', name, childProcess.child);
     });
   });
 
@@ -173,7 +191,7 @@ export function fork(path, args, options, classOrObject) {
           childProcess
             .child.send(
             `wtfork:${methodData.func_name}:${methodData.call_id}`,
-            { reject: extractError(error) }
+            { reject: _extractError(error) }
           );
         });
     }
@@ -182,6 +200,16 @@ export function fork(path, args, options, classOrObject) {
   return childProcess;
 }
 
+export default {
+  fork,
+  getMethods,
+};
+
+// TODO babel add exports plugin not working at the moment for some reason ??
+module.exports = exports.default;
+
+// Below code sets up the child process.parent functionality
+// only if the env variable is present - automatically added by the internal fork
 if (process.env.WTFORK_CHILD) {
   // create a new emitter to be used as an internal messaging router from the parent process
   process.parent = new EventEmitter();
@@ -192,19 +220,12 @@ if (process.env.WTFORK_CHILD) {
   // where the parent method stubs get created
   process.parent.methods = {};
 
-  process.parent.setChildMethods = function setChildMethods(classOrObject) {
-    process.parent._childMethods = classOrObject;
-    process.parent.send('wtfork:set_child_methods', {
-      wtfork: {
-        methods: getMethods(classOrObject),
-      },
-    });
-  };
+  process.parent.setChildMethods = _setChildMethods;
 
   // the parent provided it's methods so lets create some stubs
   if (process.env.WTFORK_PARENT_METHODS) {
     process.env.WTFORK_PARENT_METHODS.split(',').forEach((name) => {
-      process.parent.methods[name] = ipcMethodWrapper('parent', name, process.parent);
+      process.parent.methods[name] = _ipcMethodWrapper('parent', name, process.parent);
     });
   }
 
@@ -250,17 +271,9 @@ if (process.env.WTFORK_CHILD) {
           process
             .parent.send(
             `wtfork:${methodData.func_name}:${methodData.call_id}`,
-            { reject: extractError(error) }
+            { reject: _extractError(error) }
           );
         });
     }
   });
 }
-
-export default {
-  fork,
-  getMethods,
-};
-
-// TODO babel add exports plugin not working at the moment for some reason ??
-module.exports = exports.default;
