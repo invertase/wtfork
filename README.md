@@ -40,6 +40,10 @@ process.on('message', function (msg) {
 You can simply do the following in your child process:
 
 ```javascript
+import wtfork from 'wtfork';
+// or
+// require('wtfork');
+
 // can also be .once()
 process.parent.on('thisIsTheMessageForMe', function (data) {
   console.log(data);
@@ -68,6 +72,9 @@ myDispatcherProcess.child.on('hello', function (data) {
 ### Child process:
 ```javascript
 import wtfork from 'wtfork';
+// or
+// require('wtfork');
+
 // you only need to require wtfork on the child, it will automatically setup
 // the `process.parent` functionality for you
 
