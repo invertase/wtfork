@@ -2,9 +2,9 @@
 
 ## Major Changes
 - You are no longer required to call `process.parent.setChildMethods` to setup all your child methods
-  for the parent to access. Simple just export/module.exports on your child proc file and we'll do
-  the magic for you. You can still call `process.parent.setChildMethods` if you wanted but this will
-  override any methods created via  module exports.
+  for the parent to access. Just export/module.exports on your child proc file and wtfork will do
+  the magic for you. You can still call `process.parent.setChildMethods` if you want but this will
+  override any methods created via module exports.
   
 ### Example child process using exports:
 ```javascript
