@@ -6,8 +6,10 @@ import cuid from 'cuid';
  * Returns all the method names from a provided class/object.
  * @param classOrObject
  * @returns {Array.<*>}
+ * @private
  */
-export function getMethods(classOrObject) {
+function _getMethods(classOrObject) {
+  /* eslint arrow-body-style:0 */ // some weirdness going on here.
   const methods = Object.getOwnPropertyNames(classOrObject).filter((p) => {
     return !p.startsWith('_') && typeof classOrObject[p] === 'function';
   });
@@ -99,7 +101,7 @@ function _setChildMethods(classOrObject) {
   process.parent._childMethods = classOrObject;
   process.parent.send('wtfork:set_child_methods', {
     wtfork: {
-      methods: getMethods(classOrObject),
+      methods: _getMethods(classOrObject),
     },
   });
 }
@@ -121,7 +123,7 @@ export function fork(path, args, options, classOrObject) {
     // set the parent methods available to the child
     Object.assign(options.env, {
       WTFORK_CHILD: childId,
-      WTFORK_PARENT_METHODS: getMethods(classOrObject),
+      WTFORK_PARENT_METHODS: _getMethods(classOrObject),
     });
   } else {
     Object.assign(options.env, {
@@ -202,7 +204,6 @@ export function fork(path, args, options, classOrObject) {
 
 export default {
   fork,
-  getMethods,
 };
 
 // TODO babel add exports plugin not working at the moment for some reason ??
@@ -277,3 +278,6 @@ if (process.env.WTFORK_CHILD) {
     }
   });
 }
+
+// TODO merge method relay functionality from parent and child, duplicating logic at the moment
+// TODO merge event relay functionality from parent and child, duplicating logic at the moment
