@@ -87,16 +87,22 @@ process.
 
 **Each method MUST return a promise** (but only if you want to receive data back)
 
-You can pass in an ES6 class instance or an object with methods. Constructor methods are ignored.
+The `fork` method accepts the same arguments as node's [fork](https://nodejs.org/api/child_process.html#child_process_child_process_fork_modulepath_args_options) but with an optional 4th argument of methods.
 
-To make child methods available to the parent you simply need to export as if you're just requiring
-any old module on your child process js file.
+The method argument accepts a class instance or an object with methods. Any methods found here
+are then available to the child to remotely call via `process.parent.methods.someCoolMethod(...args)`.
+
+**Note:** `constructor` methods and private methods (beginning with _) are automatically excluded.
+
+To make child methods available to the parent you need to module export using the standard modules syntax for node. [*See the child example below*.](#child-process-1)
+
+Optionally you can also call `process.parent.setChildMethods(classOrObjectOfMethods)` on the child, this however will replace all methods created via module exports
 
 ## Example:
 
 ### Parent process:
 ```javascript
-
+import { fork } from 'wtfork';
 /*
  Some random class of methods you might want to IPC method call
  Doesn't have to be a class, can also be an object with methods
@@ -219,6 +225,7 @@ process.parent.methods.goodbye('test string', 'wtfork').then((result) => {
 ```
 
 Running the parent in this example will produce the following output:
+
 ```text
 Im a parent method called 'hello' and I just ran: test string
 Im a parent method called 'goodbye' and I just ran: test string - wtfork
