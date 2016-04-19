@@ -9,14 +9,17 @@ import cuid from 'cuid';
  */
 export function getMethods(classOrObject) {
   const methods = Object.getOwnPropertyNames(classOrObject).filter((p) => {
-    return typeof classOrObject[p] === 'function';
+    return !p.startsWith('_') && typeof classOrObject[p] === 'function';
   });
 
   if (!methods.length) {
     // try getProtoTypeOf as it's potentially a class
     for (const name of Object.getOwnPropertyNames(Object.getPrototypeOf(classOrObject))) {
       const method = classOrObject[name];
-      if (!(method instanceof Function) || method === classOrObject || name === 'constructor') continue;
+      if (!method instanceof Function) continue;
+      if (method === classOrObject) continue;
+      if (name === 'constructor') continue;
+      if (name.startsWith('_')) continue; // exclude private methods
       methods.push(name);
     }
   }
