@@ -126,6 +126,18 @@ class Test {
       return reject(new Error('Please don\'t leave me!'));
     });
   }
+
+  /**
+   * Some private method - private methods are excluded by default
+   * @param secrets
+   * @private
+   */
+  _somePrivateMethod(secrets) {
+    return new Promise((resolve) => {
+      console.log('You can\'t see me child process.');
+      return resolve(secrets);
+    });
+  }
 }
 
 // create a forked process as normal using standard node fork api
@@ -142,7 +154,7 @@ myDispatcherProcess.child.on('hello', (data) => {
   // lets call the parent processes hello method - it should always resolve with no error
   myDispatcherProcess.child.methods.simples('meerkat').then((result) => {
     console.log(`The child method 'simples' resolved back to the parent with: ${JSON.stringify(result)}`);
-    // now quit 
+    // now quit
     myDispatcherProcess.child.methods.quit(0);
   }).catch((error) => {
     console.error('The child method \'simples\' errored back to the parent.');
@@ -173,7 +185,7 @@ process.parent.setChildMethods({
       return resolve(someVal);
     });
   },
-  
+
   /**
    * Unnecessary function to quit
    * @param code
@@ -231,7 +243,7 @@ Error: Please don't leave me!
     at emitTwo (events.js:100:13)
     at ChildProcess.emit (events.js:185:7)
     at handleMessage (internal/child_process.js:718:10)
-    
+
 Process finished with exit code 0
 ```
 

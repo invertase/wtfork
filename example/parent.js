@@ -29,6 +29,18 @@ class Test {
       return reject(new Error('Please don\'t leave me!'));
     });
   }
+
+  /**
+   * Some private method - private methods are excluded by default
+   * @param secrets
+   * @private
+   */
+  _somePrivateMethod(secrets) {
+    return new Promise((resolve) => {
+      console.log('You can\'t see me child process.');
+      return resolve(secrets);
+    });
+  }
 }
 
 // create a forked process as normal using standard node fork api
